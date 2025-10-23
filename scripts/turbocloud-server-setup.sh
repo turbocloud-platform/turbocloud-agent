@@ -175,7 +175,7 @@ export PATH=$PATH:/usr/local/go/bin
 rm go1.22.6.linux-amd64.tar.gz
 
 #Clone and build TurboCloud agent
-git clone -b $agent_env https://github.com/turbocloud-dev/turbocloud-agent.git
+git clone -b $agent_env https://github.com/turbocloud-platform/turbocloud-agent.git
 cd turbocloud-agent
 go build
 sudo chmod +x turbocloud-agent
@@ -255,10 +255,10 @@ else
     sudo nebula-cert sign -name "$name" -ip "$private_ip/24"
     #nebula-cert sign -name "local_machine_1" -ip "192.168.202.2/24" -groups "devs"
 
-    wget https://raw.githubusercontent.com/turbocloud-dev/turbocloud-agent/refs/heads/main/config/nebula_lighthouse_config.yaml -O lighthouse_config.yaml
+    wget https://raw.githubusercontent.com/turbocloud-platform/turbocloud-agent/refs/heads/main/config/nebula_lighthouse_config.yaml -O lighthouse_config.yaml
     sed -i -e "s/{{lighthouse_ip}}/$server_ip/g" lighthouse_config.yaml
 
-    wget https://raw.githubusercontent.com/turbocloud-dev/turbocloud-agent/refs/heads/main/config/nebula_node_config.yaml -O node_config.yaml
+    wget https://raw.githubusercontent.com/turbocloud-platform/turbocloud-agent/refs/heads/main/config/nebula_node_config.yaml -O node_config.yaml
     sed -i -e "s/{{lighthouse_ip}}/$server_ip/g" node_config.yaml
 
     sudo mv lighthouse_config.yaml /etc/nebula/config.yaml
