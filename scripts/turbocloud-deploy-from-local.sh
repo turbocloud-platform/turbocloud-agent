@@ -3,7 +3,7 @@
 ##Parameters
 ##-i 1.2.3.4.5 - public ip address of a server
 ##-d domain.com - domain, A record should be resolved to a public ip address typed in -i
- 
+
 ##Example:
 ##
 ##curl https://turbocloud.dev/deploy | bash -s -- -i 12.32.22.43 -d myproject.com
@@ -16,11 +16,18 @@ project_port=""
 project_folder=${PWD}
 folder_name=$(pwd | sed 's#.*/##')
 
-local_project_folder="$(cat /proc/sys/kernel/random/uuid)"
+MD5_BIN="md5sum" # default for windows git bash and linux
+
+COMMAND_OUTPUT=$(command -v md5sum)
+if [ ${#COMMAND_OUTPUT} -lt 1 ]; then
+    MD5_BIN="md5" # OSX
+fi
+
+local_project_folder="$(echo $(date | ${MD5_BIN} | tr -dc '[:alnum:]\n\r' | tr '[:upper:]' '[:lower:]'))"
 server_project_folder="/root/$local_project_folder"
 
 while getopts i:d:t:p: option
-do 
+do
     case "${option}"
         in
         i)public_ip=${OPTARG};;
@@ -125,7 +132,7 @@ if [ "$environmentId" = "" ]; then
   -H "Content-Type: application/json" \
   -d '{"Name":"prod","Branch":"","Port":"'"$project_port"'",'$domains',"MachineIds":[],"GitTag":"","ServiceId":"'"$serviceId"'"}' | \
   sed -n 's|.*"Id":[[:space:]]*"\([^"]*\)".*|\1|p')
-  
+
   echo "New environment has been created with Id: $environmentId"
 
   echo "Saving service Id and environment Id to .turbocloud"
@@ -149,4 +156,3 @@ echo "to find a domain, manage deployments, and view logs."
 echo ""
 echo "Docs are available at https://turbocloud.dev/docs"
 echo "--------------------------------------------------------"
-

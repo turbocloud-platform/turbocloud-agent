@@ -21,3 +21,5 @@
 go.work
 go.work.sum
 turbocloud-agent
+
+.DS_Store

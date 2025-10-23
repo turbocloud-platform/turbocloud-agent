@@ -96,6 +96,9 @@ func reloadProxyServer() {
 	}
 
 	caddyfileTemplate := createTemplate("caddyfile", `
+# This file is updated automatically by turbocloud-agent.service
+# Don't edit it manually - all your edits will be removed
+
 {
 	order coraza_waf first
     acme_ca https://acme.zerossl.com/v2/DV90
@@ -176,15 +179,15 @@ func reloadProxyServer() {
 
 {{.Domain}} {
 
-    coraza_waf {
-        load_owasp_crs
-        directives `+"`"+`
-            Include @coraza.conf-recommended
-            Include @crs-setup.conf.example
-            Include @owasp_crs/*.conf
-            SecRuleEngine On
-		`+"`"+`
-        }
+    # coraza_waf {
+        # load_owasp_crs
+        # directives `+"`"+`
+            # Include @coraza.conf-recommended
+            # Include @crs-setup.conf.example
+            # Include @owasp_crs/*.conf
+            # SecRuleEngine On
+		# `+"`"+`
+        # }
 
     reverse_proxy * {{.ReverseProxy}}
 }
