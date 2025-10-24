@@ -419,14 +419,14 @@ func deployImage(image Image, job DeploymentJob, deployment Deployment) {
 		scriptTemplate = createTemplate("run_container", `
 		#!/bin/sh
 		docker volume create {{.ENVIRONMENT_ID}}
-		docker container run -p {{.MACHINE_VPN_IP}}:{{.MACHINE_PORT}}:{{.SERVICE_PORT}} -d --restart unless-stopped --log-driver=journald --name {{.DEPLOYMENT_ID}}.1 {{.IMAGE_NAME}}
+		docker container run -p {{.MACHINE_VPN_IP}}:{{.MACHINE_PORT}}:{{.SERVICE_PORT}} -d -v sqlite_data:/data --restart unless-stopped --log-driver=journald --name {{.DEPLOYMENT_ID}}.1 {{.IMAGE_NAME}}
 `)
 	} else {
 		scriptTemplate = createTemplate("run_container", `
 		#!/bin/sh
 		docker volume create {{.ENVIRONMENT_ID}}
 		docker image pull {{.CONTAINER_REGISTRY_IP}}:7000/{{.IMAGE_ID}}
-		docker container run -p {{.MACHINE_VPN_IP}}:{{.MACHINE_PORT}}:{{.SERVICE_PORT}} -d -v {{.ENVIRONMENT_ID}}:/data \ --restart unless-stopped --log-driver=journald --name {{.DEPLOYMENT_ID}}.1 {{.CONTAINER_REGISTRY_IP}}:7000/{{.IMAGE_ID}}
+		docker container run -p {{.MACHINE_VPN_IP}}:{{.MACHINE_PORT}}:{{.SERVICE_PORT}} -d -v sqlite_data:/data --restart unless-stopped --log-driver=journald --name {{.DEPLOYMENT_ID}}.1 {{.CONTAINER_REGISTRY_IP}}:7000/{{.IMAGE_ID}}
 `)
 	}
 
