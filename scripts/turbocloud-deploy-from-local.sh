@@ -39,7 +39,7 @@ done
 #Check if it'sa git repository
 if git rev-parse --git-dir > /dev/null 2>&1; then
     mkdir $local_project_folder
-    git ls-files --recurse-submodules -z | tar --null -T - -czvf $local_project_folder/turbocloud.tar.gz
+    git ls-files --others --cached --exclude-standard -z | grep -zvF "turbocloud.tar.gz" | tar --null -T - -czvf $local_project_folder/turbocloud.tar.gz
     scp -r $local_project_folder root@$public_ip:$server_project_folder
     rm -rf $local_project_folder
 else
