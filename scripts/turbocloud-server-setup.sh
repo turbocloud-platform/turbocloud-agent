@@ -96,6 +96,7 @@ sudo chmod +x /usr/local/bin/ufw-docker
 ufw-docker install
 sudo systemctl restart ufw
 
+sudo rm /etc/docker/daemon.json
 sudo echo -e "{\"insecure-registries\" : [\"192.168.202.1:7000\"]}" >> /etc/docker/daemon.json
 sudo systemctl restart docker
 
@@ -209,6 +210,8 @@ if [ "$url_download_vpn_certs" != "" ]; then
     sudo ufw allow from 192.168.202.0/24
 
     #Start Nebula
+    sudo rm turbocloud-nebula.service
+
     sudo echo -e "[Unit]\nDescription=Nebula overlay networking tool\nWants=basic.target network-online.target nss-lookup.target time-sync.target\nAfter=basic.target network.target network-online.target\nBefore=sshd.service" >> /etc/systemd/system/turbocloud-nebula.service
     sudo echo -e "[Service]\nSyslogIdentifier=nebula\nExecReload=/bin/kill -HUP $MAINPID\nExecStart=/usr/local/bin/nebula -config /etc/nebula/config.yaml\nRestart=always" >> /etc/systemd/system/turbocloud-nebula.service
     sudo echo -e "[Install]\nWantedBy=multi-user.target" >> /etc/systemd/system/turbocloud-nebula.service
@@ -226,6 +229,8 @@ if [ "$url_download_vpn_certs" != "" ]; then
 
     #Install RQLite instance as a replica
     #Start RQLite
+    sudo rm /etc/systemd/system/rqlite-agent.service
+
     sudo echo -e "[Unit]\nDescription=RQLite Agent\nWants=basic.target network-online.target nss-lookup.target time-sync.target\nAfter=basic.target network.target network-online.target" >> /etc/systemd/system/rqlite-agent.service
     sudo echo -e "[Service]\nSyslogIdentifier=turbocloud-agent\nExecStart=/usr/local/bin/rqlited -node-id $name -raft-reap-node-timeout=30s -http-addr  $private_ip:4001 -raft-addr $private_ip:4002 -join 192.168.202.1:4002 $HOME/rqlite \nRestart=always" >> /etc/systemd/system/rqlite-agent.service
     sudo echo -e "[Install]\nWantedBy=multi-user.target" >> /etc/systemd/system/rqlite-agent.service
@@ -235,6 +240,8 @@ if [ "$url_download_vpn_certs" != "" ]; then
 
     #We dont set a public domain for the non-first server now because the current version has just one load balancer and build machine
     #Will be improved in next versions
+    sudo rm /etc/systemd/system/turbocloud-agent.service
+
 
     #Start turbocloud-agent as systemd service
     sudo echo -e "[Unit]\nDescription=TurboCloud Agent\nWants=basic.target network-online.target nss-lookup.target time-sync.target\nAfter=basic.target network.target network-online.target" >> /etc/systemd/system/turbocloud-agent.service
@@ -268,6 +275,8 @@ else
     sudo mv $name.key /etc/nebula/host.key
 
     #Start Nebula
+    sudo rm /etc/systemd/system/turbocloud-nebula.service
+
     sudo echo -e "[Unit]\nDescription=Nebula overlay networking tool\nWants=basic.target network-online.target nss-lookup.target time-sync.target\nAfter=basic.target network.target network-online.target\nBefore=sshd.service" >> /etc/systemd/system/turbocloud-nebula.service
     sudo echo -e "[Service]\nSyslogIdentifier=nebula\nExecReload=/bin/kill -HUP $MAINPID\nExecStart=/usr/local/bin/nebula -config /etc/nebula/config.yaml\nRestart=always" >> /etc/systemd/system/turbocloud-nebula.service
     sudo echo -e "[Install]\nWantedBy=multi-user.target" >> /etc/systemd/system/turbocloud-nebula.service
@@ -275,6 +284,8 @@ else
     sudo systemctl start turbocloud-nebula.service
 
     #Start RQLite
+    sudo rm /etc/systemd/system/rqlite-agent.service
+
     sudo echo -e "[Unit]\nDescription=RQLite Agent\nWants=basic.target network-online.target nss-lookup.target time-sync.target\nAfter=basic.target network.target network-online.target" >> /etc/systemd/system/rqlite-agent.service
     sudo echo -e "[Service]\nSyslogIdentifier=turbocloud-agent\nExecStart=/usr/local/bin/rqlited -node-id $name -raft-reap-node-timeout=30s -http-addr $private_ip:4001 -raft-addr $private_ip:4002  $HOME/rqlite \nRestart=always" >> /etc/systemd/system/rqlite-agent.service
     sudo echo -e "[Install]\nWantedBy=multi-user.target" >> /etc/systemd/system/rqlite-agent.service
@@ -283,6 +294,8 @@ else
 
 
     #Start RQLite replica, we need 2 instances on a lighthouse because rqlite doesn't work in case we have 2 machines with rqlite in a cluster mode and we delete one server without uninstalling rqlite
+    sudo rm /etc/systemd/system/rqlite-replica-agent.service
+
     sudo echo -e "[Unit]\nDescription=RQLite Agent\nWants=basic.target network-online.target nss-lookup.target time-sync.target\nAfter=basic.target network.target network-online.target" >> /etc/systemd/system/rqlite-replica-agent.service
     sudo echo -e "[Service]\nSyslogIdentifier=turbocloud-agent\nExecStart=/usr/local/bin/rqlited -node-id $name-replica -raft-reap-node-timeout=30s -http-addr $private_ip:4003 -raft-addr $private_ip:4004 -join 192.168.202.1:4002 $HOME/rqlite-replica \nRestart=always" >> /etc/systemd/system/rqlite-replica-agent.service
     sudo echo -e "[Install]\nWantedBy=multi-user.target" >> /etc/systemd/system/rqlite-replica-agent.service
@@ -292,6 +305,7 @@ else
 
     #Start TurboCloud agent
     #We set a public domain for the first server
+    sudo rm /etc/systemd/system/turbocloud-agent.service
 
     sudo echo -e "[Unit]\nDescription=TurboCloud Agent\nWants=basic.target network-online.target nss-lookup.target time-sync.target\nAfter=basic.target network.target network-online.target" >> /etc/systemd/system/turbocloud-agent.service
     sudo echo -e "[Service]\nSyslogIdentifier=turbocloud-agent\nExecStart=/usr/local/bin/turbocloud-agent \nRestart=always\nEnvironment=TURBOCLOUD_AGENT_DOMAIN=$domain\nEnvironment=TURBOCLOUD_VPN_NODE_NAME=$name\nEnvironment=TURBOCLOUD_VPN_NODE_PRIVATE_IP=$private_ip" >> /etc/systemd/system/turbocloud-agent.service
